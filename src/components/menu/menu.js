@@ -38,26 +38,6 @@ import {getI18nKey} from '@/utils/routerUtil'
 
 const {Item, SubMenu} = Menu
 
-const resolvePath = (path, params = {}) => {
-  let _path = path
-  Object.entries(params).forEach(([key, value]) => {
-    _path = _path.replace(new RegExp(`:${key}`, 'g'), value)
-  })
-  return _path
-}
-
-const toRoutesMap = (routes) => {
-  const map = {}
-  routes.forEach(route => {
-    map[route.fullPath] = route
-    if (route.children && route.children.length > 0) {
-      const childrenMap = toRoutesMap(route.children)
-      Object.assign(map, childrenMap)
-    }
-  })
-  return map
-}
-
 export default {
   name: 'IMenu',
   props: {
@@ -93,9 +73,6 @@ export default {
   computed: {
     menuTheme() {
       return this.theme == 'light' ? this.theme : 'dark'
-    },
-    routesMap() {
-      return toRoutesMap(this.options)
     }
   },
   created () {
@@ -154,17 +131,10 @@ export default {
       return !icon || icon == 'none' ? null : h(Icon, {props: {type:  icon}})
     },
     renderMenuItem: function (h, menu) {
-      let tag = 'router-link'
-      const path = resolvePath(menu.fullPath, menu.meta.params)
-      let config = {props: {to: {path, query: menu.meta.query}, }, attrs: {style: 'overflow:hidden;white-space:normal;text-overflow:clip;'}}
-      if (menu.meta && menu.meta.link) {
-        tag = 'a'
-        config = {attrs: {style: 'overflow:hidden;white-space:normal;text-overflow:clip;', href: menu.meta.link, target: '_blank'}}
-      }
       return h(
         Item, {key: menu.fullPath},
         [
-          h(tag, config,
+          h('router-link', {props: {to: menu.fullPath}, attrs: {style: 'overflow:hidden;white-space:normal;text-overflow:clip;'}},
             [
               this.renderIcon(h, menu.meta ? menu.meta.icon : 'none', menu.fullPath),
               this.$t(getI18nKey(menu.fullPath))
@@ -224,23 +194,15 @@ export default {
       })
     },
     updateMenu () {
-      this.selectedKeys = this.getSelectedKeys()
-      let openKeys = this.selectedKeys.filter(item => item !== '')
-      openKeys = openKeys.slice(0, openKeys.length -1)
+      const menuRoutes = this.$route.matched.filter(item => item.path !== '')
+      this.selectedKeys = this.getSelectedKey(this.$route)
+      let openKeys = menuRoutes.map(item => item.path)
       if (!fastEqual(openKeys, this.sOpenKeys)) {
         this.collapsed || this.mode === 'horizontal' ? this.cachedOpenKeys = openKeys : this.sOpenKeys = openKeys
       }
     },
-    getSelectedKeys() {
-      let matches = this.$route.matched
-      const route = matches[matches.length - 1]
-      let chose = this.routesMap[route.path]
-      if (chose.meta && chose.meta.highlight) {
-        chose = this.routesMap[chose.meta.highlight]
-        const resolve = this.$router.resolve({path: chose.fullPath})
-        matches = (resolve.resolved && resolve.resolved.matched) || matches
-      }
-      return matches.map(item => item.path)
+    getSelectedKey (route) {
+      return route.matched.map(item => item.path)
     }
   },
   render (h) {

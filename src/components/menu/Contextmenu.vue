@@ -33,7 +33,6 @@ export default {
       left: 0,
       top: 0,
       target: null,
-      meta: null,
       selectedKeys: []
     }
   },
@@ -46,12 +45,14 @@ export default {
     }
   },
   created () {
-    window.addEventListener('click', this.closeMenu)
-    window.addEventListener('contextmenu', this.setPosition)
-  },
-  beforeDestroy() {
-    window.removeEventListener('click', this.closeMenu)
-    window.removeEventListener('contextmenu', this.setPosition)
+    const clickHandler = () => this.closeMenu()
+    const contextMenuHandler = e => this.setPosition(e)
+    window.addEventListener('click', clickHandler)
+    window.addEventListener('contextmenu', contextMenuHandler)
+    this.$emit('hook:beforeDestroy', () => {
+      window.removeEventListener('click', clickHandler)
+      window.removeEventListener('contextmenu', contextMenuHandler)
+    })
   },
   methods: {
     closeMenu () {
@@ -61,10 +62,9 @@ export default {
       this.left = e.clientX
       this.top = e.clientY
       this.target = e.target
-      this.meta = e.meta
     },
     handleClick ({ key }) {
-      this.$emit('select', key, this.target, this.meta)
+      this.$emit('select', key, this.target)
       this.closeMenu()
     }
   }
