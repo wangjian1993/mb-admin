@@ -79,7 +79,7 @@
       </a-form>
     </div>
     <div>
-      <a-space class="operator">
+      <div class="operator">
         <a-button @click="addNew" type="primary">新建</a-button>
         <a-button >批量操作</a-button>
         <a-dropdown>
@@ -91,7 +91,7 @@
             更多操作 <a-icon type="down" />
           </a-button>
         </a-dropdown>
-      </a-space>
+      </div>
       <standard-table
         :columns="columns"
         :dataSource="dataSource"
@@ -116,7 +116,6 @@
           <a @click="deleteRecord(record.key)" v-auth="`delete`">
             <a-icon type="delete" />删除2
           </a>
-          <router-link :to="`/list/query/detail/${record.key}`" >详情</router-link>
         </div>
         <template slot="statusTitle">
           <a-icon @click.native="onStatusTitleClick" type="info-circle" />

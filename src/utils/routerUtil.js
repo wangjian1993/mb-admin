@@ -2,25 +2,6 @@ import routerMap from '@/router/async/router.map'
 import {mergeI18nFromRoutes} from '@/utils/i18n'
 import Router from 'vue-router'
 import deepMerge from 'deepmerge'
-import basicOptions from '@/router/async/config.async'
-
-//应用配置
-let appOptions = {
-  router: undefined,
-  i18n: undefined,
-  store: undefined
-}
-
-/**
- * 设置应用配置
- * @param options
- */
-function setAppOptions(options) {
-  const {router, store, i18n} = options
-  appOptions.router = router
-  appOptions.store = store
-  appOptions.i18n = i18n
-}
 
 /**
  * 根据 路由配置 和 路由组件注册 解析路由
@@ -32,80 +13,48 @@ function parseRoutes(routesConfig, routerMap) {
   routesConfig.forEach(item => {
     // 获取注册在 routerMap 中的 router，初始化 routeCfg
     let router = undefined, routeCfg = {}
-    if (typeof item === 'string') {
+    if (typeof item === 'string' && routerMap[item]) {
       router = routerMap[item]
-      routeCfg = {path: (router && router.path) || item, router: item}
+      routeCfg = {path: router.path || item, router: item}
     } else if (typeof item === 'object') {
       router = routerMap[item.router]
       routeCfg = item
     }
+    // 从 router 和 routeCfg 解析路由
     if (!router) {
       console.warn(`can't find register for router ${routeCfg.router}, please register it in advance.`)
-      router = typeof item === 'string' ? {path: item, name: item} : item
-    }
-    // 从 router 和 routeCfg 解析路由
-    const meta = {
-      authority: router.authority,
-      icon: router.icon,
-      page: router.page,
-      link: router.link,
-      params: router.params,
-      query: router.query,
-      ...router.meta
-    }
-    const cfgMeta = {
-      authority: routeCfg.authority,
-      icon: routeCfg.icon,
-      page: routeCfg.page,
-      link: routeCfg.link,
-      params: routeCfg.params,
-      query: routeCfg.query,
-      ...routeCfg.meta
-    }
-    Object.keys(cfgMeta).forEach(key => {
-      if (cfgMeta[key] === undefined || cfgMeta[key] === null || cfgMeta[key] === '') {
-        delete cfgMeta[key]
+    } else {
+      const route = {
+        path: routeCfg.path || router.path || routeCfg.router,
+        name: routeCfg.name || router.name,
+        component: router.component,
+        redirect: routeCfg.redirect || router.redirect,
+        meta: {
+          authority: routeCfg.authority || router.authority || '*',
+          icon: routeCfg.icon || router.icon,
+          page: routeCfg.page || router.page
+        }
       }
-    })
-    Object.assign(meta, cfgMeta)
-    const route = {
-      path: routeCfg.path || router.path || routeCfg.router,
-      name: routeCfg.name || router.name,
-      component: router.component,
-      redirect: routeCfg.redirect || router.redirect,
-      meta: {...meta, authority: meta.authority || '*'}
+      if (routeCfg.invisible || router.invisible) {
+        route.meta.invisible = true
+      }
+      if (routeCfg.children && routeCfg.children.length > 0) {
+        route.children = parseRoutes(routeCfg.children, routerMap)
+      }
+      routes.push(route)
     }
-    if (routeCfg.invisible || router.invisible) {
-      route.meta.invisible = true
-    }
-    if (routeCfg.children && routeCfg.children.length > 0) {
-      route.children = parseRoutes(routeCfg.children, routerMap)
-    }
-    routes.push(route)
   })
   return routes
 }
 
 /**
  * 加载路由
- * @param routesConfig {RouteConfig[]} 路由配置
+ * @param router 应用路由实例
+ * @param store 应用的 vuex.store 实例
+ * @param i18n 应用的 vue-i18n 实例
+ * @param routesConfig 路由配置
  */
-function loadRoutes(routesConfig) {
-  //兼容 0.6.1 以下版本
-  /*************** 兼容 version < v0.6.1 *****************/
-  if (arguments.length > 0) {
-    const arg0 = arguments[0]
-    if (arg0.router || arg0.i18n || arg0.store) {
-      routesConfig = arguments[1]
-      console.error('the usage of signature loadRoutes({router, store, i18n}, routesConfig) is out of date, please use the new signature: loadRoutes(routesConfig).')
-      console.error('方法签名 loadRoutes({router, store, i18n}, routesConfig) 的用法已过时, 请使用新的方法签名 loadRoutes(routesConfig)。')
-    }
-  }
-  /*************** 兼容 version < v0.6.1 *****************/
-
-  // 应用配置
-  const {router, store, i18n} = appOptions
-
+function loadRoutes({router, store, i18n}, routesConfig) {
   // 如果 routesConfig 有值，则更新到本地，否则从本地获取
   if (routesConfig) {
     store.commit('account/setRoutesConfig', routesConfig)
@@ -117,8 +66,8 @@ function loadRoutes(routesConfig) {
   if (asyncRoutes) {
     if (routesConfig && routesConfig.length > 0) {
       const routes = parseRoutes(routesConfig, routerMap)
-      const finalRoutes = mergeRoutes(basicOptions.routes, routes)
-      formatRoutes(finalRoutes)
+      formatRoutes(routes)
+      const finalRoutes = mergeRoutes(router.options.routes, routes)
       router.options = {...router.options, routes: finalRoutes}
       router.matcher = new Router({...router.options, routes:[]}).matcher
       router.addRoutes(finalRoutes)
@@ -267,4 +216,4 @@ function loadGuards(guards, options) {
   })
 }
 
-export {parseRoutes, loadRoutes, formatAuthority, getI18nKey, loadGuards, deepMergeRoutes, formatRoutes, setAppOptions}
+export {parseRoutes, loadRoutes, formatAuthority, getI18nKey, loadGuards, deepMergeRoutes, formatRoutes}

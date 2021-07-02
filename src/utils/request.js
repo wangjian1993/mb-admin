@@ -30,14 +30,14 @@ const METHOD = {
  * @param params 请求参数
  * @returns {Promise<AxiosResponse<T>>}
  */
-async function request(url, method, params, config) {
+async function request(url, method, params) {
   switch (method) {
     case METHOD.GET:
-      return axios.get(url, {params, ...config})
+      return axios.get(url, {params})
     case METHOD.POST:
-      return axios.post(url, params, config)
+      return axios.post(url, params)
     default:
-      return axios.get(url, {params, ...config})
+      return axios.get(url, {params})
   }
 }
 
@@ -134,28 +134,6 @@ function loadInterceptors(interceptors, options) {
   })
 }
 
-/**
- * 解析 url 中的参数
- * @param url
- * @returns {Object}
- */
-function parseUrlParams(url) {
-  const params = {}
-  if (!url || url === '' || typeof url !== 'string') {
-    return params
-  }
-  const paramsStr = url.split('?')[1]
-  if (!paramsStr) {
-    return params
-  }
-  const paramsArr = paramsStr.replace(/&|=/g, ' ').split(' ')
-  for (let i = 0; i < paramsArr.length / 2; i++) {
-    const value = paramsArr[i * 2 + 1]
-    params[paramsArr[i * 2]] = value === 'true' ? true : (value === 'false' ? false : value)
-  }
-  return params
-}
-
 export {
   METHOD,
   AUTH_TYPE,
@@ -163,6 +141,5 @@ export {
   setAuthorization,
   removeAuthorization,
   checkAuthorization,
-  loadInterceptors,
-  parseUrlParams
+  loadInterceptors
 }

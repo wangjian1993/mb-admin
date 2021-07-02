@@ -69,16 +69,13 @@ function hasAuthority(route, permissions, roles) {
  * @param roles
  */
 function filterMenu(menuData, permissions, roles) {
-  return menuData.filter(menu => {
+  menuData.forEach(menu => {
     if (menu.meta && menu.meta.invisible === undefined) {
-      if (!hasAuthority(menu, permissions, roles)) {
-        return false
+      menu.meta.invisible = !hasAuthority(menu, permissions, roles)
+      if (menu.children && menu.children.length > 0) {
+        filterMenu(menu.children, permissions, roles)
       }
     }
-    if (menu.children && menu.children.length > 0) {
-      menu.children = filterMenu(menu.children, permissions, roles)
-    }
-    return true
   })
 }
 

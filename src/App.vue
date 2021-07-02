@@ -1,5 +1,5 @@
 <template>
-  <a-config-provider :locale="locale" :get-popup-container="popContainer">
+  <a-config-provider :locale="locale">
     <router-view/>
   </a-config-provider>
 </template>
@@ -31,7 +31,6 @@ export default {
     },
     lang(val) {
       this.setLanguage(val)
-      this.setHtmlTitle()
     },
     $route() {
       this.setHtmlTitle()
@@ -43,13 +42,10 @@ export default {
     'theme.color': function(val) {
       let closeMessage = this.$message.loading(`您选择了主题色 ${val}, 正在切换...`)
       themeUtil.changeThemeColor(val, this.theme.mode).then(closeMessage)
-    },
-    'layout': function() {
-      window.dispatchEvent(new Event('resize'))
     }
   },
   computed: {
-    ...mapState('setting', ['layout', 'theme', 'weekMode', 'lang'])
+    ...mapState('setting', ['theme', 'weekMode', 'lang'])
   },
   methods: {
     ...mapMutations('setting', ['setDevice']),
@@ -80,9 +76,6 @@ export default {
       const key = route.path === '/' ? 'home.name' : getI18nKey(route.matched[route.matched.length - 1].path)
       document.title = process.env.VUE_APP_NAME + ' | ' + this.$t(key)
     },
-    popContainer() {
-      return document.getElementById("popContainer")
-    }
   }
 }
 </script>
