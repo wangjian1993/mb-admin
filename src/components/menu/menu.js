@@ -134,7 +134,7 @@ export default {
       return h(
         Item, {key: menu.fullPath},
         [
-          h('router-link', {props: {to: menu.fullPath}, attrs: {style: 'overflow:hidden;white-space:normal;text-overflow:clip;'}},
+          h('router-link', {props: {to: menu.fullPath}, attrs: {style: 'white-space:normal;text-overflow:clip;'}},
             [
               this.renderIcon(h, menu.meta ? menu.meta.icon : 'none', menu.fullPath),
               this.$t(getI18nKey(menu.fullPath))

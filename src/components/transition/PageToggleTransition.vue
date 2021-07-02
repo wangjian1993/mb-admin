@@ -100,6 +100,9 @@ export default {
 </script>
 
 <style lang="less">
+.ant-tabs-bar{
+	margin: 0 0 0px 0;
+}	
 .page-toggle-enter-active {
 	position: absolute !important;
 	animation-duration: 0.8s !important;

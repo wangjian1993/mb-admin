@@ -266,16 +266,30 @@ const options = {
 									path: 'institutions-list',
 									name: '机构列表',
 									component: () => import('@/pages/admin/institutions/list'),
+								},
+								{
+									path: 'institutions-add',
+									name: '添加机构',
+									component: () => import('@/pages/admin/institutions/add'),
+									meta:{
+										invisible:true
+									}
 								}
 							]
 						},
 						{
-							path: 'analysis',
+							path: 'organization',
 							name: '组织管理',
-							component: () => import('@/pages/dashboard/analysis'),
+							component: BlankView,
 							meta: {
 								icon: 'fund'
-							}
+							},
+							children: [{
+									path: 'organization-list',
+									name: '组织列表',
+									component: () => import('@/pages/admin/organization/list'),
+								}
+							]
 						},
 						{
 							path: 'analysis',

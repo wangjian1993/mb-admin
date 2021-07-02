@@ -1,5 +1,5 @@
 <template>
-	<a-card class="card" :bordered="false" :bodyStyle="{padding:'15px'}">
+	<a-card class="card" :bordered="false" :bodyStyle="{padding:'5px'}">
 		<div>
 			<a-row type="flex" justify="end">
 				<a-col :span="2"><a-button type="primary" icon="search">提交</a-button></a-col>

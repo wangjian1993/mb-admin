@@ -9,6 +9,7 @@
 			v-else-if="layout === 'side' || layout === 'mix'"
 			:menuData="sideMenuData"
 			:collapsed="collapsed"
+			:sideWidth="collapsed ? '60px' : '150px'"
 			:collapsible="true"
 		/>
 		<div v-if="fixedSideBar && !isMobile" :style="`width: ${sideMenuWidth}; min-width: ${sideMenuWidth};max-width: ${sideMenuWidth};`" class="virtual-side"></div>
@@ -22,9 +23,6 @@
 			<a-layout-content class="admin-layout-content">
 				<div :style="`min-height: ${minHeight}px; position: relative`"><slot></slot></div>
 			</a-layout-content>
-			<!-- <a-layout-footer style="padding: 0px">
-        <page-footer :link-list="footerLinks" :copyright="copyright" />
-      </a-layout-footer> -->
 		</a-layout>
 	</a-layout>
 </template>
@@ -67,7 +65,7 @@ export default {
 		...mapState('setting', ['isMobile', 'theme', 'layout', 'footerLinks', 'copyright', 'fixedHeader', 'fixedSideBar', 'hideSetting']),
 		...mapGetters('setting', ['firstMenu', 'subMenu', 'menuData']),
 		sideMenuWidth() {
-			return this.collapsed ? '80px' : '180px';
+			return this.collapsed ? '70px' : '150px';
 		},
 		headerStyle() {
 			let width = this.fixedHeader && this.layout !== 'head' && !this.isMobile ? `calc(100% - ${this.sideMenuWidth})` : '100%';
@@ -117,6 +115,10 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.ant-layout-header {
+	height: 55px;
+	line-height: 55px;
+}
 .admin-layout {
 	.side-menu {
 		&.fixed-side {
@@ -136,7 +138,7 @@ export default {
 		}
 	}
 	.admin-layout-content {
-		padding: 24px 24px 0;
+		padding: 0px 10px 0;
 		overflow-x: hidden;
 		min-height: calc(100vh - 64px - 122px);
 	}

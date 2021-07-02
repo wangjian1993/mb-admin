@@ -75,4 +75,12 @@ export default {
 
 <style lang="less" scoped>
 @import 'index';
+// .ant-layout-header{
+// 	height: 50px;
+// 	line-height: 50px;
+// }
+// .admin-header .head-menu{
+// 	height: 50px;
+// 	line-height: 50px;
+// }
 </style>
